@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Scores</title>
+    <style>
+        html {
+            width: 100vw;
+        }
+        body {
+            font-size: 1.5em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #111;
+            opacity: 0;
+            transition: opacity 0.3s;
+            padding: 5%;
+        }
+        .scores {
+            width: 80%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+        .score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 1em;
+        }
+        .score:first-child { align-items: flex-start; }
+        p, h1, h2, h3, footer * {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: #eee;
+            font-weight: 300;
+            text-align: justify;
+        }
+        h1, h2, h3 {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 400;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+        }
+        .desc {
+            font-size: 1em;
+            font-weight: 200;
+            margin: 0 7% 0 7%;
+        }
+        .box {
+            width: calc(2vw + 2vh);
+            height: calc(2vw + 2vh);
+            background-color: transparent;
+            margin: 0 0.25em;
+            border: 1px solid rgba(100, 100, 100, 0.5);
+        }
+        .header {
+            display: flex; flex-direction: row; width: 70%; justify-content: space-evenly;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .boxcarrier {
+            display: flex; flex-direction: row; justify-content: center;
+        }
+        footer {
+            display: flex; flex-direction: row; width: 100%; justify-content: space-evenly;
+            margin: 5vh 0 2vh 0;
+        }
+        /* for phones, hide the box elements */
+        @media only screen and (max-width: 600px) {
+            .header { width: 90%; align-items: center; justify-content: space-evenly; flex-direction: column; }
+            .boxcarrier { display: none }
+            .header h1 { font-size: 1.6em; width: 100%; text-align: center; margin: 0 0 2vh 0 }
+            .scores { width: 100%; justify-content: space-around; }
+            .score { margin: 0;  }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="boxcarrier"><span class="box"></span>
+        <span class="box"></span><span class="box"></span></div>
+        <h1>HKN Wordle Scores</h1>
+        <div class="boxcarrier"><span class="box"></span>
+        <span class="box"></span><span class="box"></span></div>
+    </div>
+    <div class="scores">
+    </div>
+    <h3>How does this work?</h3>
+    <p class="desc">I am a Python script that runs as CGI on the HKN web server. I receive a JSON payload from Slack every time someone sends a message on 
+        the #wordle channel, and I use that to update a JSON file that contains the scores of everyone who has solved the Wordles as (6 - the number of lines you used up). 
+        My <a href="https://github.com/HKN-Beta/WordleBot">code</a> is here if you want to check it out!</p>
+    <footer>
+        <small>HKN Beta Chapter, 2022</small>
+    </footer>
+</body>
+<script>
+    window.onload = async () => {
+        var r = await fetch("scores.json");
+        var scores = await r.json();
+        var sorted = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+        var namediv = document.createElement("div");
+        namediv.classList.add("score");
+        var scorediv = document.createElement("div");
+        scorediv.classList.add("score");
+        sorted.forEach(k => {
+            scorediv.classList.add("score");
+            var name = document.createElement("p");
+            name.innerHTML = k;
+            var score = document.createElement("p");
+            score.innerHTML = scores[k];
+            namediv.appendChild(name);
+            scorediv.appendChild(score);
+        });
+        document.querySelector(".scores").appendChild(namediv);
+        document.querySelector(".scores").appendChild(scorediv);
+        document.body.style.opacity = 1;
+    }
+</script>
+</html>

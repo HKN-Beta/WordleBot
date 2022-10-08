@@ -1,0 +1,7 @@
+__pycache__/
+.htaccess
+.wordles
+scores.json
+msg.*
+recv.json.*
+errlog*
