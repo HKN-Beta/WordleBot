@@ -7,7 +7,9 @@ import re
 import json
 import requests
 
-BOT_TOKEN = "xoxb-14544372036-4184807403734-o0oqizr0b3QqHqOqp4Asg5Py"
+with open("../../private/wordlebot/wordlebot_token", "r") as f:
+    BOT_TOKEN = f.read().strip()
+BOT_TOKEN = ""
 URL_ENCODED = {"Content-Type": "application/x-www-form-urlencoded"}
 
 def validate_wordle(msg):
