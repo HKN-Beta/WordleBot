@@ -9,7 +9,6 @@ import requests
 
 with open("../../private/wordlebot/wordlebot_token", "r") as f:
     BOT_TOKEN = f.read().strip()
-BOT_TOKEN = ""
 URL_ENCODED = {"Content-Type": "application/x-www-form-urlencoded"}
 
 def validate_wordle(msg):
@@ -38,6 +37,7 @@ def validate_wordle(msg):
         return False
 
 def update_score(scr):
+    # check how many times name appears in .wordle/XXX
     wordle_path = os.path.join(".wordles", str(scr["wordle_id"]))
     if not os.path.exists(wordle_path):
         with open(wordle_path, "a+") as f:
@@ -59,9 +59,9 @@ def update_score(scr):
     name = scr["name"]
     scr = scr["score"]
     if name not in scores:
-        scores[name] = scr
+        scores[name] = {"points": scr, "played": 1}
     else:
-        scores[name] = scores[name] + scr
+        scores[name] = {"points": scores[name]["points"] + scr, "played": scores[name]["played"] + 1}
     with open("scores.json", "w+") as f:
         json.dump(scores, f)
 
@@ -86,13 +86,13 @@ def save_msg(data):
 if __name__ == "__main__":
     try:
         payload = json.loads(sys.stdin.read())
-        save_json(payload)
+        # save_json(payload)
         if "event" in payload:
             if "subtype" in payload["event"] and payload["event"]["subtype"] == "channel_join":
                 # we were just added to the channel and should send a hello message
                 data = {"token": BOT_TOKEN, "channel": payload["event"]["channel"], 
                         "text": "Hello, fellow Wordlers!  I'd like to help you out by handling your Wordle scores.  I've just scraped the scores from today, and " + 
-                                "I'll be keeping track of them from now on.  If you'd like to see the current scores, head over to https://engineering.purdue.edu/hkn/wordlebot for the latest scores.  " + 
+                                "I'll be keeping track of them from now on.  If you'd like to see the current scores, head over to https://engineering.purdue.edu/hkn/wordlebot/ for the latest scores.  " + 
                                 "May the best person win (but that doesn't mean any of you deserve any less 💓)!"}
                 requests.post("https://slack.com/api/chat.postMessage", data=data, headers=URL_ENCODED)
                 data = {"token": BOT_TOKEN, "channel": payload["event"]["channel"], 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
                 realname = r.json()["user"]["real_name"]
                 message_text = payload["event"]["text"]
                 # debug only
-                save_msg(realname + ": " + message_text)
+                # save_msg(realname + ": " + message_text)
                 if validate_wordle(message_text):
                     if "X/6" in message_text:
                         evt = { "name": realname, "score": 0 }
@@ -122,8 +122,9 @@ if __name__ == "__main__":
         print("Content-Type: text/json\r\n")
         print(json.dumps({"status": "ok"}))
     except Exception as e:
-        with open("errlog", "a+") as f:
-            f.write(str(e) + "\n")
+        if os.environ["REQUEST_METHOD"] == "POST":
+            with open("errlog", "a+") as f:
+                f.write(str(e) + "\n")
         print("Content-Type: text/html\r\n")
         with open("scores.html") as f:
             print(f.read())

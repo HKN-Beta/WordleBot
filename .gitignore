@@ -1,6 +1,7 @@
 __pycache__/
 .htaccess
 .wordles
+wordle.py
 scores.json
 msg.*
 recv.json.*

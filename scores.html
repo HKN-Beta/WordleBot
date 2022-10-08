@@ -102,9 +102,9 @@
 </body>
 <script>
     window.onload = async () => {
-        var r = await fetch("scores.json");
+        var r = await fetch("scores.json", { cache: "no-store" });
         var scores = await r.json();
-        var sorted = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+        var sorted = Object.keys(scores).sort((a, b) => (scores[b]["points"]/scores[b]["played"]) - (scores[a]["points"]/scores[a]["played"]));
         var namediv = document.createElement("div");
         namediv.classList.add("score");
         var scorediv = document.createElement("div");
@@ -114,7 +114,7 @@
             var name = document.createElement("p");
             name.innerHTML = k;
             var score = document.createElement("p");
-            score.innerHTML = scores[k];
+            score.innerHTML = (scores[k]["points"]/scores[k]["played"]).toPrecision(3);
             namediv.appendChild(name);
             scorediv.appendChild(score);
         });
