@@ -37,7 +37,10 @@ def validate_wordle(msg):
         return False
 
 def update_score(scr):
-    # check how many times name appears in .wordle/XXX
+    wordles = os.listdir(".wordles")
+    # should not post old wordle results for points
+    if any([scr["wordle_id"] < int(x) for x in wordles]):
+        return
     wordle_path = os.path.join(".wordles", str(scr["wordle_id"]))
     if not os.path.exists(wordle_path):
         with open(wordle_path, "a+") as f:
@@ -110,7 +113,9 @@ if __name__ == "__main__":
                 # save_msg(realname + ": " + message_text)
                 if validate_wordle(message_text):
                     if "X/6" in message_text:
-                        evt = { "name": realname, "score": 0 }
+                        score = re.findall(r"Wordle ([0-9]+) ((X)/([0-9]+))", message_text)
+                        number = int(score[0][0])
+                        evt = { "name": realname, "wordle_id": number, "score": 0 }
                     else:
                         score = re.findall(r"Wordle ([0-9]+) (([0-9]+)/([0-9]+))", message_text)
                         number = int(score[0][0])
@@ -122,7 +127,7 @@ if __name__ == "__main__":
         print("Content-Type: text/json\r\n")
         print(json.dumps({"status": "ok"}))
     except Exception as e:
-        if os.environ["REQUEST_METHOD"] == "POST":
+        if os.environ["REQUEST_METHOD"] == "POST" and str(e) != "":
             with open("errlog", "a+") as f:
                 f.write(str(e) + "\n")
         print("Content-Type: text/html\r\n")
