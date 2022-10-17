@@ -115,9 +115,9 @@
         var r = await fetch("scores.json", { cache: "no-store" });
         var scores = await r.json();
         var sorted = Object.keys(scores).sort((a, b) => a < b ? -1 : 1);
-        sorted = sorted.sort((a, b) => scores[b]["played"] - scores[a]["played"]);
         sorted = sorted.sort((a, b) => scores[b]["points"] - scores[a]["points"]);
         sorted = sorted.sort((a, b) => (scores[b]["points"]/scores[b]["played"]) - (scores[a]["points"]/scores[a]["played"]));
+        sorted = sorted.sort((a, b) => scores[b]["played"] - scores[a]["played"]);
         var namediv = document.createElement("div");
         namediv.classList.add("score");
         var scorediv = document.createElement("div");

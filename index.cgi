@@ -36,6 +36,11 @@ def validate_wordle(msg):
             f.write(str(e) + "\n")
         return False
 
+def send_msg_as_bot(msg):
+    data = {"token": BOT_TOKEN, "channel": "wordle", "text": msg}
+    r = requests.post("https://slack.com/api/chat.postMessage", data=data, headers=URL_ENCODED)
+    return r.status_code == 200
+
 def update_score(scr):
     wordles = os.listdir(".wordles")
     # should not post old wordle results for points
@@ -89,9 +94,12 @@ def save_msg(data):
 if __name__ == "__main__":
     try:
         payload = json.loads(sys.stdin.read())
-        # save_json(payload)
+        #save_json(payload)
         if "event" in payload:
-            if "subtype" in payload["event"] and payload["event"]["subtype"] == "channel_join":
+            userpayload = {"token": BOT_TOKEN, "user": payload["event"]["user"]}
+            r = requests.post("https://slack.com/api/users.info", data=userpayload)
+            realname = r.json()["user"]["real_name"]
+            if "subtype" in payload["event"] and payload["event"]["subtype"] == "channel_join" and realname == 'WordleScores':
                 # we were just added to the channel and should send a hello message
                 data = {"token": BOT_TOKEN, "channel": payload["event"]["channel"], 
                         "text": "Hello, fellow Wordlers!  I'd like to help you out by handling your Wordle scores.  I've just scraped the scores from today, and " + 
@@ -105,9 +113,6 @@ if __name__ == "__main__":
                 print("Content-Type: text/json\r\n")
                 print(json.dumps({"status": "ok"}))
             elif "user" in payload["event"]:
-                userpayload = {"token": BOT_TOKEN, "user": payload["event"]["user"]}
-                r = requests.post("https://slack.com/api/users.info", data=userpayload)
-                realname = r.json()["user"]["real_name"]
                 message_text = payload["event"]["text"]
                 # debug only
                 # save_msg(realname + ": " + message_text)
