@@ -1,0 +1,13 @@
+#! /usr/bin/env python3
+import os
+
+os.chdir("/web/groups/hkn/public_html/wordlebot")
+os.system("mkdir 2022")
+os.system("mv .wordles 2022/")
+os.system("mv scores.json 2022/")
+os.system("mkdir .wordles")
+os.system("echo {} | tee scores.json")
+os.system("sed -i 's/2022/2023/g' scores.html")
+
+from wordle import *
+send_msg_as_bot("Happy new year! Scores have been reset.")

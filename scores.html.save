@@ -108,13 +108,14 @@
         the #wordle channel, and I use that to update a JSON file that contains the scores of everyone who has solved the Wordles as (6 - the number of lines you used up). 
         My <a href="https://github.com/HKN-Beta/WordleBot">code</a> is here if you want to check it out!</p>
     <footer>
-        <small>HKN Beta Chapter, 2023</small>
+        <small>HKN Beta Chapter, 2022</small>
     </footer>
 </body>
 <script>
     window.onload = async () => {
         var r = await fetch("scores.json", { cache: "no-store" });
         var scores = await r.json();
+        try {
         var highestplayed = Object.values(scores).map(e => e["played"]).sort((a,b)=>b-a)[0];
         var sorted = Object.keys(scores).sort((a, b) => a < b ? -1 : 1);
         document.getElementById("topdesc").innerHTML = document.getElementById("topdesc").innerHTML.replace("HIGHESTPLAYED", highestplayed.toString())
@@ -138,6 +139,7 @@
             scorediv.appendChild(score);
             fracdiv.appendChild(frac);
         });
+        }
         document.querySelector(".scores").appendChild(namediv);
         document.querySelector(".scores").appendChild(fracdiv);
         document.querySelector(".scores").appendChild(scorediv);

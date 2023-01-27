@@ -129,10 +129,15 @@ if __name__ == "__main__":
                         assert solved <= total and solved > 0 and total > 0
                         evt = { "name": realname, "wordle_id": number, "score": (total - solved + 1) }
                     update_score(evt)
+                elif "Quordle" in message_text and realname != "WordleScores":
+                    # we don't care about quordles
+                    data = {"token": BOT_TOKEN, "channel": payload["event"]["channel"], 
+                            "text": "Goddamn it " + realname.split(" ")[0] + ", I don't know Quordle"}
+                    requests.post("https://slack.com/api/chat.postMessage", data=data, headers=URL_ENCODED)
         print("Content-Type: text/json\r\n")
         print(json.dumps({"status": "ok"}))
     except Exception as e:
-        if os.environ["REQUEST_METHOD"] == "POST" and str(e) != "":
+        if os.environ["REQUEST_METHOD"] == "POST" and str(e) != "'user'":
             with open("errlog", "a+") as f:
                 f.write(str(e) + "\n")
         print("Content-Type: text/html\r\n")
